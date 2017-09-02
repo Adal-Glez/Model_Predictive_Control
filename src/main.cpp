@@ -8,7 +8,7 @@
 #include "Eigen-3.3/Eigen/QR"
 #include "MPC.h"
 #include "json.hpp"
-
+// This base code was built from combining classes excercises, forum clues and QnA video session from udacity mentors. 
 // for convenience
 using json = nlohmann::json;
 
