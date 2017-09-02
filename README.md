@@ -1,7 +1,80 @@
 # CarND-Controls-MPC
 Self-Driving Car Engineer Nanodegree Program
 
+
+
 ---
+Objective: Implement a non linear model Model Predictive Control to drive the car around the track. 
+
+<img src=img/result.gif , width=600>
+
+## The Model
+
+In this project, I've implemented a kinematic model to control the vehicle around the track. Kinematic models like this one ignore inertia, friction, gravity, torque and mass. This simplification reduces the accuracy of the models, but it also makes them more easy to manage. 
+In this project, the vehicle is able to achieve the speed of 100 MPH.
+
+The model will optimize the actuators input to simulate the vehicle trajactory and minimize the cost like cross-track error.
+
+ 
+The state vector consists of [x, y, ψ, ν, δ, a]
+
+x: cars x global position
+y: cars y global position
+ψ (psi): vehicle's angle in radians from the x-direction (radians)
+ν : vehicle's velocity
+
+including the actuators:
+δ (delta): steering angle
+a : acceleration (throttle)
+
+and the equations:
+
+*  x_[t+1] = x[t] + v[t] * cos(psi[t]) * dt  // vehicle position on x
+*  y_[t+1] = y[t] + v[t] * sin(psi[t]) * dt  // vehicle position on y
+*  psi_[t+1] = psi[t] + v[t] / Lf * delta[t] * dt  // heading direction
+*  v_[t+1] = v[t] + a[t] * dt  //velocity
+*  cte[t+1] = f(x[t]) - y[t] + v[t] * sin(epsi[t]) * dt // Cross track error
+*  epsi[t+1] = psi[t] - psides[t] + v[t] * delta[t] / Lf * dt // Orientation error where Lf is the distance between the center of mass of the vehicle and the front wheels and affects the maneuverability.
+
+## Timestep Length and Elapsed Duration (N & dt)
+
+* N is number of timesteps.
+* dt is the duration. 
+
+having a large N could look like  an option however, large N will lead to a a higger computation cost and to a large cost function, in summary if I increase N the car would go off track and for dt the smaller dt could lead also to a higer computaion and response time could be affected.
+so this is going 1.5 seconds into the future ( N =15 * dt = 0.1)
+
+
+
+## Polynomial Fitting and MPC Preprocessing
+prior to the polynomial fitting we transform the shift the car reference ( rotation about the origin )
+
+substractt all points from current position  ( x and y coordinates will be at 0 )
+
+double shift_x = ptsx[i]-px;
+double shift_y = ptsy[i]-py;
+
+rotate all of our points about the origin ( make size zero )
+
+ptsx[i]=(shift_x * cos(0-psi) - shift_y*sin(0-psi));
+
+ptsy[i]=(shift_x * sin(0-psi) + shift_y*cos(0-psi));
+
+thay way our reference has 0 degrees also set to the origin, 
+so when the car gets in the same orientation fo the line we end up with an horizontal line which is easier to follow as a function with simpler values in the x 
+Ive found out that is also helpfun with the mpc validation and to do crosstrack error
+              
+
+## Model Predictive Control with Latency
+
+For our intial state model, our algorithm selects an optimal sequence of steering and throttle adjustments, 150 times a second for the time forward.
+
+We account for latency by assuming the current car drifts at the current speed, heading, and rate of turn for the entire interval forward.
+
+This is a similar excersice to forsee the next action while driving, since you have to take care of the steps ahead more than your current position that is pretty much fixed and you cannot change it unless you advance.
+
+
+
 
 ## Dependencies
 
