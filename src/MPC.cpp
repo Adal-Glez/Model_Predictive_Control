@@ -35,15 +35,15 @@ size_t delta_start = epsi_start + N;
 size_t a_start = delta_start + N - 1;
 
                                       // 100mph max
-const double k_cte           = 4000;  //4000;
-const double k_epsi          = 4000;  //4000;
-const double k_v             = 1;     //1
+const double k_cte           = 4000;  //;4000;
+const double k_epsi          = 1;     //;4000;
+const double k_v             = 1;     //;1
 
-const double k_steering      = 20000;   //800
-const double k_throttle      = 5;     //5
+const double k_steering      = 40000; //2000;800
+const double k_throttle      = 1;     //;5
 
-const double k_dsteering     = 1000;   //800
-const double k_dthrottle     = 10;    //10;
+const double k_dsteering     = 1000;  //;800
+const double k_dthrottle     = 1;     // ;10;
 
 
 class FG_eval {
@@ -274,32 +274,17 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   // {...} is shorthand for creating a vector, so auto x1 = {1.0,2.0}
   // creates a 2 element double vector.
   
-  // average the first two actuation
-  // since the latency is about 0.1s, I used the average the first two actuation to solve the latency issue
-  // Also you can try to use dt that is longder than the latency but I found this method is more stable
-  
-  
-  
-  //double delta = (solution.x[delta_start] + solution.x[delta_start+1]) / 2.;
-  //double a = (solution.x[a_start] + solution.x[a_start+1]) / 2.;
   vector<double> result;
   
   result.push_back( solution.x[delta_start] );
   result.push_back( solution.x[a_start]  );
-  
-  //vector<double> result = {delta, a};
   
   
   for (int i=0; i < N-1; i++) {
     result.push_back(solution.x[x_start + i +1]);
     result.push_back(solution.x[y_start + i +1]);
   }
-  //for (int i=0; i < N-1; i++) {
-  //  result.push_back(solution.x[x_start + i + 1]);
-  //  result.push_back(solution.x[y_start + i + 1]);
-  //}
   
   return result;
-
 
 }

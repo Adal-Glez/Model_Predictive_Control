@@ -8,7 +8,7 @@
 #include "Eigen-3.3/Eigen/QR"
 #include "MPC.h"
 #include "json.hpp"
-// This base code was built from combining classes excercises, forum clues and QnA video session from udacity mentors. 
+// This base code was built from combining classes excercises, forum clues and QnA video session from udacity mentors.
 // for convenience
 using json = nlohmann::json;
 
@@ -49,17 +49,17 @@ Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals,
   assert(xvals.size() == yvals.size());
   assert(order >= 1 && order <= xvals.size() - 1);
   Eigen::MatrixXd A(xvals.size(), order + 1);
-
+  
   for (int i = 0; i < xvals.size(); i++) {
     A(i, 0) = 1.0;
   }
-
+  
   for (int j = 0; j < xvals.size(); j++) {
     for (int i = 0; i < order; i++) {
       A(j, i + 1) = A(j, i) * xvals(j);
     }
   }
-
+  
   auto Q = A.householderQr();
   auto result = Q.solve(yvals);
   return result;
@@ -67,10 +67,10 @@ Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals,
 
 int main() {
   uWS::Hub h;
-
+  
   // MPC is initialized here!
   MPC mpc;
-
+  
   h.onMessage([&mpc](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
@@ -91,17 +91,17 @@ int main() {
           double py = j[1]["y"];
           double psi = j[1]["psi"];
           double v = j[1]["speed"];
-            
+          
           for (int i = 0 ; i <ptsx.size(); i++){
-              // shift car reference angle to 90 degs
-              double shift_x = ptsx[i]-px;
-              double shift_y = ptsy[i]-py;
-              
-              ptsx[i]=(shift_x * cos(0-psi) - shift_y*sin(0-psi));
-              ptsy[i]=(shift_x * sin(0-psi) + shift_y*cos(0-psi));
-              
-          }
+            // shift car reference angle to 90 degs
+            double shift_x = ptsx[i]-px;
+            double shift_y = ptsy[i]-py;
             
+            ptsx[i]=(shift_x * cos(0-psi) - shift_y*sin(0-psi));
+            ptsy[i]=(shift_x * sin(0-psi) + shift_y*cos(0-psi));
+            
+          }
+          
           double* ptrx = &ptsx[0];
           Eigen::Map<Eigen::VectorXd> ptsx_transform(ptrx, 6);
           
@@ -109,7 +109,7 @@ int main() {
           Eigen::Map<Eigen::VectorXd> ptsy_transform(ptry, 6);
           
           auto coeffs = polyfit(ptsx_transform, ptsy_transform, 3);
-            
+          
           //calc cte and epsi
           double cte  = polyeval(coeffs,0);
           double epsi = -atan(coeffs[1]);
@@ -117,17 +117,29 @@ int main() {
           double steer_value = j[1]["steering_angle"];
           double throttle_value = j[1]["throttle"];
           
+          
+          //********************
+          // Account for latency
+          const double latency = 0.1;  // 100 ms
+          const double Lf = 2.67;
+          px = v * latency;
+          psi = - v * steer_value / Lf * latency ;
+          
+          //*******************
+
+          
           Eigen::VectorXd state(6);
           //state  x, y, t, velocity, cte and errorpsi
-          state << 0, 0, 0, v, cte, epsi;
-          
+          //state <<  0, 0,  0,  v, cte, epsi;
+          state   << px, 0, psi, v, cte, epsi;
+
           /*
-          * TODO: Calculate steering angle and throttle using MPC.
-          *
-          * Both are in between [-1, 1].
-          *
-          */
-            
+           * TODO: Calculate steering angle and throttle using MPC.
+           *
+           * Both are in between [-1, 1].
+           *
+           */
+          
           auto vars = mpc.Solve(state, coeffs);
           //Display the waypoints/reference line  ( yellow line)
           vector<double> next_x_vals;
@@ -136,25 +148,25 @@ int main() {
           double poly_inc = 2.5;
           int num_points = 25;
           
-            
+          
           for(int i =1; i< num_points ; i++){
-              next_x_vals.push_back(poly_inc*i);
-              next_y_vals.push_back(polyeval(coeffs, poly_inc*i));
+            next_x_vals.push_back(poly_inc*i);
+            next_y_vals.push_back(polyeval(coeffs, poly_inc*i));
           }
           
           //Display the MPC predicted trajectory  ( Green line )
           vector<double> mpc_x_vals;
           vector<double> mpc_y_vals;
-        
+          
           for(int i = 2; i < vars.size() ; i ++){
-              if( i % 2 == 0){
-                  mpc_x_vals.push_back(vars[i]);
-              }else{
-                  mpc_y_vals.push_back(vars[i]);
-              }
-              
+            if( i % 2 == 0){
+              mpc_x_vals.push_back(vars[i]);
+            }else{
+              mpc_y_vals.push_back(vars[i]);
+            }
+            
           }
-          double Lf = 2.67;
+          //double Lf = 2.67;
           json msgJson;
           
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
@@ -171,10 +183,10 @@ int main() {
           // the points in the simulator are connected by a Green line
           msgJson["mpc_x"] = mpc_x_vals;
           msgJson["mpc_y"] = mpc_y_vals;
-
-
-
-
+          
+          
+          
+          
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           //std::cout << msg << std::endl;
           // Latency
@@ -196,7 +208,7 @@ int main() {
       }
     }
   });
-
+  
   // We don't need this since we're not using HTTP but if it's removed the
   // program
   // doesn't compile :-(
@@ -210,17 +222,17 @@ int main() {
       res->end(nullptr, 0);
     }
   });
-
+  
   h.onConnection([&h](uWS::WebSocket<uWS::SERVER> ws, uWS::HttpRequest req) {
     std::cout << "Connected!!!" << std::endl;
   });
-
+  
   h.onDisconnection([&h](uWS::WebSocket<uWS::SERVER> ws, int code,
                          char *message, size_t length) {
     ws.close();
     std::cout << "Disconnected" << std::endl;
   });
-
+  
   int port = 4567;
   if (h.listen(port)) {
     std::cout << "Listening to port " << port << std::endl;
