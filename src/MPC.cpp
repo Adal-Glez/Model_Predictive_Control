@@ -6,8 +6,20 @@
 using CppAD::AD;
 
 // TODO: Set the timestep length and duration
-size_t N = 12;
-double dt = 0.1;
+//99 but safe                         //102mph bumps
+size_t N = 11;                        //13
+double dt = 0.1;                      // 0.09
+
+const double k_cte           = 4000;  // 4000
+const double k_epsi          = 4000;  // 4000
+const double k_v             = 1;     // 1
+
+const double k_steering      = 25000; // 25000
+const double k_throttle      = 5;     // 5
+
+const double k_dsteering     = 1000;  // 100
+const double k_dthrottle     = 10;    // 10  
+
 
 // This value assumes the model presented in the classroom is used.
 //
@@ -23,7 +35,7 @@ const double Lf = 2.67;
 
 double  ref_cte = 0;
 double  ref_epsi = 0;
-double  ref_v = 200;
+double  ref_v = 170;
 
 size_t x_start = 0;
 size_t y_start = x_start + N;
@@ -34,16 +46,7 @@ size_t epsi_start = cte_start + N;
 size_t delta_start = epsi_start + N;
 size_t a_start = delta_start + N - 1;
 
-                                      // 100mph max
-const double k_cte           = 4000;  //;4000;
-const double k_epsi          = 1;     //;4000;
-const double k_v             = 1;     //;1
 
-const double k_steering      = 40000; //2000;800
-const double k_throttle      = 1;     //;5
-
-const double k_dsteering     = 1000;  //;800
-const double k_dthrottle     = 1;     // ;10;
 
 
 class FG_eval {
@@ -152,17 +155,17 @@ class FG_eval {
 MPC::MPC() {}
 MPC::~MPC() {}
 
-vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
+vector<double> MPC::Solve(Eigen::VectorXd x0, Eigen::VectorXd coeffs) {
   bool ok = true;
   size_t i;
   typedef CPPAD_TESTVECTOR(double) Dvector;
   
-  double x = state[0];
-  double y = state[1];
-  double psi = state[2];
-  double v = state[3];
-  double cte = state[4];
-  double epsi = state[5];
+  double x = x0[0];//state[0];
+  double y = x0[1];
+  double psi = x0[2];
+  double v = x0[3];
+  double cte = x0[4];
+  double epsi = x0[5];
   
   // Set the number of model variables (includes both states and inputs).
   // For example: If the state is a 4 element vector, the actuators is a 2
