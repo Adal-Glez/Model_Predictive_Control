@@ -1,17 +1,21 @@
-# CarND-Controls-MPC
+# **CarND-Controls-MPC Proejct**
+### Adalberto Gonzalez
+
 Self-Driving Car Engineer Nanodegree Program
 
-
-
----
 Objective: Implement a non linear model Model Predictive Control to drive the car around the track. 
 
-<img src=img/result.gif , width=600>
+[image1]: ./img/result.gif
+
+[video1]: ./img/result.mov
 
 ## The Model
 
 In this project, I've implemented a kinematic model to control the vehicle around the track. Kinematic models like this one ignore inertia, friction, gravity, torque and mass. This simplification reduces the accuracy of the models, but it also makes them more easy to manage. 
 In this project, the vehicle is able to achieve the speed of 100 MPH.
+
+
+--
 
 The model will optimize the actuators input to simulate the vehicle trajactory and minimize the cost like cross-track error.
 
