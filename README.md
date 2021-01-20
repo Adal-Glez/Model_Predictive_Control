@@ -9,9 +9,8 @@ Objective: Implement a non linear model Model Predictive Control to drive the ca
 
 [video1]: ./img/result.mov
 
-[![Link to my video result](/img/result.gif)]
+[![Link to my video result](/img/result.gif)](https://github.com/adl-aleb/Model_Predictive_Control/blob/master/img/result.mov)
 
-![alt text][image1]
 
 ## The Model
 
