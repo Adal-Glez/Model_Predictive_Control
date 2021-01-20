@@ -9,6 +9,10 @@ Objective: Implement a non linear model Model Predictive Control to drive the ca
 
 [video1]: ./img/result.mov
 
+[![Link to my video result](/img/result.gif)]
+
+![alt text][image1]
+
 ## The Model
 
 In this project, I've implemented a kinematic model to control the vehicle around the track. Kinematic models like this one ignore inertia, friction, gravity, torque and mass. This simplification reduces the accuracy of the models, but it also makes them more easy to manage. 
